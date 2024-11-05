@@ -1,0 +1,29 @@
+{% extends base %}
+
+{% block content %}
+
+    <div style="display:flex;">
+        <div style="margin-right: auto;"><h2>{{ com_name }} Company</h2></div>
+    </div>
+    <table id="example" class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">User</th>
+                <th scope="col">Remark</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in comp_record %}
+            <tr>
+                <th scope="row">{{ i.date|date:'Y-m-d' }}</th>
+                <td>{{ i.done_by }}</td>
+                <td>{{ i.remark }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div style="display:flex;">
+        <div style="margin-left: auto;"><a class="btn btn-danger" href="{% url 'Home' %}">Back</a></div>
+    </div>
+{% endblock %}

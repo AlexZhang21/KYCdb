@@ -1,0 +1,22 @@
+{% extends base %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <p>User Details</p>
+    {% for i in Userinfo %}
+    <p>Username: {{ i.username }}</p>
+    <p>Firstname: {{ i.first_name }} </p>
+    <p>Lastname: {{ i.last_name }} </p>
+    {% endfor %}
+    <form method="POST" action="">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div style="display:flex;">
+            <div style="margin-right: auto;"><button type="submit" class="btn btn-primary">Submit</button></div>
+            {%if request.user.is_superuser %}
+            <div style="margin-left: auto;"><a class="btn btn-danger" style="text" href="{% url 'Ad_User_details' %}"><i class="fa fa-arrow-left" ></i>Back</a></div>
+            {% endif %}
+        </div>
+    </form>
+{% endblock %}

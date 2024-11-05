@@ -1,0 +1,30 @@
+{% extends base %}
+
+{% block content %} 
+
+{% load crispy_forms_tags %}         
+
+{% for message in messages %}
+    <div class="container-fluid p-0">
+        <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="True">&times;</span>
+            </button>
+            {{ message }}
+        </div>
+    </div>
+{% endfor %}
+<!--Register-->
+<div class="container py-5">
+	<h1>Create New User</h1>
+	<form method="POST" action="">
+		{% csrf_token %}
+		{{ form|crispy }}
+        <div style="display:flex;">
+            <div style="margin-right: auto;"><button class="btn btn-primary" type="submit">Create</button></div>
+            <div style="margin-left: auto;"><a class="btn btn-danger" style="text" href="{% url 'Ad_User_details' %}"><i class="fa fa-arrow-left" ></i>Back</a></div>
+        </div>
+	</form>
+</div>
+
+{% endblock %}

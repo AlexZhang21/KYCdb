@@ -1,0 +1,58 @@
+{% extends base %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+{% for message in messages %}
+<!--    <div class="container-fluid p-0">-->
+        <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="True">&times;</span>
+            </button>
+            {{ message }}
+        </div>
+    </div>
+{% endfor %}
+    <div style="display:flex;">
+        <div style="margin-right: auto;"><h2>Admin User Details</h2></div>
+        <div style="margin-left: auto;"><a class="btn btn-success" style="text" href="{% url 'New_User_details' %}"><i class="fa fa-plus" ></i>Add User</a></div>
+    </div>
+    <table id="example" class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Username</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Admin</th>
+                <th scope="col">Login Time</th>
+                <th scope="col">Update Info</th>
+                <th scope="col">Change Password</th>
+                <th scope="col">Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for i in userlist %}
+            <tr>
+                <th scope="row">{{ i.id }}</th>
+                <td>{{ i.username }}</td>
+                <td>{{ i.first_name }}</td>
+                <td>{{ i.last_name }}</td>
+                <td>{{ i.email }}</td>
+                <td>{{ i.is_superuser }}</td>
+                <td>{{ i.last_login|date:'Y-m-d' }}</td>
+                <td><a href="{% url 'User_details' i.id %}" role="button" class="btn btn-success">Update Info</a></td>
+                <td><a href="{% url 'Change_Password' i.id %}" role="button" class="btn btn-warning">Change Password</a></td>
+                {% if i.id == request.user.id%}
+                <td><a href="{% url 'Delete_User' i.username %}" role="button" class="btn btn-secondary disabled">Delete</a></td>
+                {% else %}
+                <td><a data-href="{% url 'Delete_User' i.username %}" onclick="confirm_delete_user();" role="button" class="btn btn-danger">Delete</a></td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <a href="/download_file/C:%5CUsers%5Ccsooi%5CPycharmProjects%5CKYCdb%5Cfiles%5Csss%5CLeave-Application-Form_20230126.pdf/" class="btn btn-primary"><i class="fa fa-download"></i>Download</a>
+{% endblock %}

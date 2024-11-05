@@ -1,0 +1,108 @@
+{% extends base %}
+
+{% block content %}
+
+    <div style="display:flex;">
+        <div style="margin-right: auto;"><h2>{{ com_name }} Company</h2></div>
+        <div style="margin-left: auto;">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal">
+                <i class="fa fa-upload" ></i>
+                    Upload File
+            </button>
+        </div>
+    </div>
+    <table id="example" class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Filename</th>
+                <th scope="col">Latest Update</th>
+                <th scope="col">Download</th>
+                {%if request.user.is_superuser %}
+                <th scope="col">Delete</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in comp_file %}
+            <tr>
+                <th scope="row">{{ i.filename }}</th>
+                <td>{{ i.uploaded_date|date:'Y-m-d' }}</td>
+                <td>
+                    <a href="{% url 'Download_File' pk=i.id %}" class="btn btn-primary"><i class="fa fa-download"></i>Download</a>
+                </td>
+                {%if request.user.is_superuser %}
+                <td>
+                    <a data-href="{% url 'Delete_File' pk=i.id %}" onclick="confirm_delete_file();" class="btn btn-danger"><i class="fa fa-trash"></i>Delete</a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div style="display:flex;padding:5px;">
+        <div style="margin-left: auto;"><a class="btn btn-danger" href="{% url 'Home' %}">Back</a></div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Upload File</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form enctype="multipart/form-data" method="POST" action="{% url 'Company_file' prim %}"  id="myForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.file_upload.id_for_label }}" >{{ form.file_upload.label }}: </label>
+                            <input type="file" name="{{ form.file_upload.html_name }}" class="form-control-file" multiple id="{{ form.file_upload.id_for_label }}">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="uploadFile()" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function uploadFile() {
+            console.log('Am i here?')
+            var data = new FormData();
+
+            var ins = document.getElementById('id_file_upload').files.length;
+
+            if(ins == 0) {
+                alert("No file uploaded! Please try again");
+				return;
+			}
+
+			for (var x = 0; x < ins; x++) {
+				data.append("file_upload", document.getElementById('id_file_upload').files[x]);
+			}
+
+            data.append("csrfmiddlewaretoken","{{ csrf_token }}");
+            $.ajax({
+                method: "POST",
+                url: "/company_file/{{ prim }}/",
+                processData: false,
+                contentType: false,
+                mimeType: "multipart/form-data",
+                data: data,
+                success: function(res) {
+                    console.log('success')
+                    $('#exampleModal').modal('hide');
+                    setTimeout(function(){// wait for 5 secs(2)
+                        location.reload(); // then reload the page.(3)
+                    }, 1000);
+                }
+            })
+        }
+    </script>
+
+{% endblock %}
