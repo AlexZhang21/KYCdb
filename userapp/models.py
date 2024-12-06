@@ -15,6 +15,7 @@ trader = (
     ('Rex','Rex'),
     ('Maltin','Maltin'),
     ('Bai Zhong','Bai Zhong'),
+    ('Si Qi','Si Qi'),
 )
 
 trader2 = (
@@ -23,6 +24,7 @@ trader2 = (
     ('Rex','Rex'),
     ('Maltin','Maltin'),
     ('Bai Zhong','Bai Zhong'),
+    ('Si Qi', 'Si Qi'),
 )
 
 

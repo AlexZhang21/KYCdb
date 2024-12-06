@@ -31,7 +31,28 @@ class CreateNewUserForm(UserCreationForm):
         if commit:
             user.save()
         return user
+class CreateTraderForm(forms.Form):
+    trader = forms.CharField(
+        label='Trader',
+        widget=forms.TextInput(attrs={
+            'list': 'trader-options',  # 与HTML的datalist标签关联
+            'class': 'form-control',
+            'placeholder': '选择或输入Trader'
+        }),
+        required=False
+    )
+def create_form_view(request):
+    traders = ['Peter', 'Rex', 'Maltin', 'Bai Zhong', 'Si Qi']  # 示例数据，可以从数据库动态获取
+    if request.method == 'POST':
+        form = CreateTraderForm(request.POST)
+        if form.is_valid():
+            # 保存逻辑
+            trader = form.cleaned_data['trader']
+            print(f'Trader: {trader}')
+    else:
+        form = CreateTraderForm()
 
+    return render(request, 'create_form.html', {'form': form, 'traders': traders})
 class changePasswordForm(forms.ModelForm):
     username = forms.CharField(required=True,widget=forms.TextInput(attrs={'readonly':'readonly'}))
     password = forms.CharField(widget=forms.PasswordInput)
@@ -41,6 +62,11 @@ class changePasswordForm(forms.ModelForm):
 
 
 class companyForm(forms.ModelForm):
+    # 其他字段...
+    file_upload = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control-file'})
+    )
     def __init__(self, *args, **kwargs):
         super(companyForm, self).__init__(*args, **kwargs)
         self.fields['tt_bank'].label = "TT bank"
@@ -63,7 +89,8 @@ class companyForm(forms.ModelForm):
     serenity_onboard_status = forms.CharField(required=False,widget=forms.Select(choices=status,attrs={'class': 'form-control'}))
     # serenity_onboard_date = forms.DateField(widget=forms.NumberInput(attrs={'type': 'date', 'class': 'form-control'}))
     remarks = forms.CharField(required=False,max_length=1000,widget=forms.Textarea(attrs={'rows':3, 'class': 'form-control'}))
-    file_upload = forms.FileField(required=False,widget=forms.ClearableFileInput(attrs={'multiple': True, 'class': 'form-control-file'}))
+    file_upload = forms.FileField(required=False, widget=forms.FileInput(attrs={'class': 'form-control-file'}))
+
     class Meta:
         model = Company
         exclude = ['counterparty_onboard_date','serenity_onboard_date']

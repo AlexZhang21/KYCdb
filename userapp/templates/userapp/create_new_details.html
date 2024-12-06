@@ -18,97 +18,106 @@
 <table class="table table-bordered">
     <form enctype="multipart/form-data" method="POST" action="" id="myForm">
         {% csrf_token %}
-    <tbody>
-        <tr>
-            <td colSpan=3><label for="{{ form.trader.id_for_label }}" >{{ form.trader.label }}: </label></td>
-        </tr>
-        <tr>
-            <td colSpan=3>
-                <select name="{{ form.trader.html_name }}" value="{{ form.trader.value }}" class="form-control" id="{{ form.trader.id_for_label }}" required>
+        <tbody>
+            <tr>
+                <td colSpan=3><label for="{{ form.trader.id_for_label }}">{{ form.trader.label }}: </label></td>
+            </tr>
+            <tr>
+                <td colSpan=3>
+                    <!-- Trader 字段修改 -->
+                    <input type="text"
+                           name="{{ form.trader.html_name }}"
+                           list="trader-options"
+                           class="form-control"
+                           id="{{ form.trader.id_for_label }}"
+                           placeholder="选择或输入 Trader"
+                           value="{{ form.trader.value }}"
+                           required>
+                    <datalist id="trader-options">
                         {% for widget in form.trader.subwidgets %}
-                            {{ widget }}
+                            <option value="{{ widget.data.value }}">
                         {% endfor %}
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td><label for="{{ form.company_name.id_for_label }}" >{{ form.company_name.label }}: </label></td>
-            <td><label for="{{ form.company_type.id_for_label }}" >{{ form.company_type.label }}: </label></td>
-            <td><label for="{{ form.counterparty_onboard_status.id_for_label }}">{{ form.counterparty_onboard_status.label }}: </label></td>
-        </tr>
-        <tr>
-            <td><input name="{{ form.company_name.html_name }}" type="text" id="{{ form.company_name.id_for_label }}" class="form-control" {% if form.company_name.value|length > 0 %} value="{{ form.company_name.value }}" {% endif %} required></td>
-            <td>
-                <select name="{{ form.company_type.html_name }}" value="{{ form.company_type.value }}" id="{{ form.company_type.id_for_label }}" class="form-control" multiple required="false">
+                    </datalist>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="{{ form.company_name.id_for_label }}">{{ form.company_name.label }}: </label></td>
+                <td><label for="{{ form.company_type.id_for_label }}">{{ form.company_type.label }}: </label></td>
+                <td><label for="{{ form.counterparty_onboard_status.id_for_label }}">{{ form.counterparty_onboard_status.label }}: </label></td>
+            </tr>
+            <tr>
+                <td><input name="{{ form.company_name.html_name }}" type="text" id="{{ form.company_name.id_for_label }}" class="form-control" {% if form.company_name.value|length > 0 %} value="{{ form.company_name.value }}" {% endif %} required></td>
+                <td>
+                    <select name="{{ form.company_type.html_name }}" value="{{ form.company_type.value }}" id="{{ form.company_type.id_for_label }}" class="form-control" multiple required="false">
                         {% for widget in form.company_type.subwidgets %}
                             {{ widget }}
                         {% endfor %}
-                </select>
-            </td>
-            <td>
-                <select name="{{ form.counterparty_onboard_status.html_name }}" value="{{ form.counterparty_onboard_status.value }}" class="form-control" id="{{ form.counterparty_onboard_status.id_for_label }}" required>
+                    </select>
+                </td>
+                <td>
+                    <select name="{{ form.counterparty_onboard_status.html_name }}" value="{{ form.counterparty_onboard_status.value }}" class="form-control" id="{{ form.counterparty_onboard_status.id_for_label }}" required>
                         {% for widget in form.counterparty_onboard_status.subwidgets %}
                             {{ widget }}
                         {% endfor %}
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td><label for="{{ form.buyer_supplier.id_for_label }}" >{{ form.buyer_supplier.label }}: </label></td>
-            <td><label for="{{ form.product.id_for_label }}" >{{ form.product.label }}: </label></td>
-            <td><label for="{{ form.payment.id_for_label }}" >{{ form.payment.label }}: </label></td>
-        </tr>
-        <tr>
-            <td>
-                <select name="{{ form.buyer_supplier.html_name }}" class="form-control" value="{{ form.buyer_supplier.value }}" id="{{ form.buyer_supplier.id_for_label }}" required>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="{{ form.buyer_supplier.id_for_label }}">{{ form.buyer_supplier.label }}: </label></td>
+                <td><label for="{{ form.product.id_for_label }}">{{ form.product.label }}: </label></td>
+                <td><label for="{{ form.payment.id_for_label }}">{{ form.payment.label }}: </label></td>
+            </tr>
+            <tr>
+                <td>
+                    <select name="{{ form.buyer_supplier.html_name }}" class="form-control" value="{{ form.buyer_supplier.value }}" id="{{ form.buyer_supplier.id_for_label }}" required>
                         {% for widget in form.buyer_supplier.subwidgets %}
                             {{ widget }}
                         {% endfor %}
-                </select>
-            </td>
-            <td>
-                <select name="{{ form.product.html_name }}" class="form-control" value="{{ form.product.value }}" id="{{ form.product.id_for_label }}" multiple required="false">
+                    </select>
+                </td>
+                <td>
+                    <select name="{{ form.product.html_name }}" class="form-control" value="{{ form.product.value }}" id="{{ form.product.id_for_label }}" multiple required="false">
                         {% for widget in form.product.subwidgets %}
                             {{ widget }}
                         {% endfor %}
-                </select>
-            </td>
-            <td>
-                <select name="{{ form.payment.html_name }}" class="form-control" value="{{ form.payment.value }}" id="{{ form.payment.id_for_label }}" multiple required="false">
+                    </select>
+                </td>
+                <td>
+                    <select name="{{ form.payment.html_name }}" class="form-control" value="{{ form.payment.value }}" id="{{ form.payment.id_for_label }}" multiple required="false">
                         {% for widget in form.payment.subwidgets %}
                             {{ widget }}
                         {% endfor %}
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td><label for="{{ form.issuing_bank.id_for_label }}" >{{ form.issuing_bank.label }}: </label></td>
-            <td><label for="{{ form.receiving_bank.id_for_label }}" >{{ form.receiving_bank.label }}: </label></td>
-            <td><label for="{{ form.tt_bank.id_for_label }}" >{{ form.tt_bank.label }}: </label></td>
-        </tr>
-        <tr>
-            <td>
-                <select name="{{ form.issuing_bank.html_name }}" class="form-control" value="{{ form.issuing_bank.value }}" id="{{ form.issuing_bank.id_for_label }}" multiple {% if form.payment.value|length == 0 or 1 not in form.payment.value %} disabled {% endif %} />
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="{{ form.issuing_bank.id_for_label }}">{{ form.issuing_bank.label }}: </label></td>
+                <td><label for="{{ form.receiving_bank.id_for_label }}">{{ form.receiving_bank.label }}: </label></td>
+                <td><label for="{{ form.tt_bank.id_for_label }}">{{ form.tt_bank.label }}: </label></td>
+            </tr>
+            <tr>
+                <td>
+                    <select name="{{ form.issuing_bank.html_name }}" class="form-control" value="{{ form.issuing_bank.value }}" id="{{ form.issuing_bank.id_for_label }}" multiple {% if form.payment.value|length == 0 or 1 not in form.payment.value %} disabled {% endif %} />
                         {% for widget in form.issuing_bank.subwidgets %}
                             {{ widget }}
                         {% endfor %}
-                </select>
-            </td>
-            <td>
-                <select name="{{ form.receiving_bank.html_name }}" class="form-control" value="{{ form.receiving_bank.value }}" id="{{ form.receiving_bank.id_for_label }}" multiple {% if form.payment.value|length == 0 or 1 not in form.payment.value %} disabled {% endif %} />
+                    </select>
+                </td>
+                <td>
+                    <select name="{{ form.receiving_bank.html_name }}" class="form-control" value="{{ form.receiving_bank.value }}" id="{{ form.receiving_bank.id_for_label }}" multiple {% if form.payment.value|length == 0 or 1 not in form.payment.value %} disabled {% endif %} />
                         {% for widget in form.receiving_bank.subwidgets %}
                             {{ widget }}
                         {% endfor %}
-                </select>
-            </td>
-            <td>
-                <select name="{{ form.tt_bank.html_name }}" class="form-control" value="{{ form.tt_bank.value }}" id="{{ form.tt_bank.id_for_label }}" multiple {% if form.payment.value|length == 0 or 3 not in form.payment.value and 2 not in form.payment.value %} disabled {% endif %} />
+                    </select>
+                </td>
+                <td>
+                    <select name="{{ form.tt_bank.html_name }}" class="form-control" value="{{ form.tt_bank.value }}" id="{{ form.tt_bank.id_for_label }}" multiple {% if form.payment.value|length == 0 or 3 not in form.payment.value and 2 not in form.payment.value %} disabled {% endif %} />
                         {% for widget in form.tt_bank.subwidgets %}
                             {{ widget }}
                         {% endfor %}
-                </select>
-            </td>
-        </tr>
+                    </select>
+                </td>
+            </tr>
         <tr>
             <td><label for="{{ form.credit_amount.id_for_label }}" >{{ form.credit_amount.label }}: </label></td>
             <td><label for="{{ form.credit_period.id_for_label }}" >{{ form.credit_period.label }}: </label></td>

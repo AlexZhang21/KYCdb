@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse,HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.forms import inlineformset_factory
 from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Prefetch
@@ -7,49 +7,40 @@ from django.contrib import messages
 from django.conf import settings
 from django.forms.models import model_to_dict
 
-from django.contrib.auth import authenticate,login,logout,update_session_auth_hash
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.views import View
 from django.urls import reverse_lazy
 from django.core.files.storage import FileSystemStorage
 
-from .forms import UserForm,CreateNewUserForm,changePasswordForm,companyForm,filterForm
-from .models import CompanyFile,CompanycreatedRecord,Company,comp_type,product,payment,bank
+from .forms import UserForm, CreateNewUserForm, changePasswordForm, companyForm, filterForm
+from .models import CompanyFile, CompanycreatedRecord, Company, comp_type, product, payment, bank
 from datetime import datetime
 
-import os,shutil,mimetypes
+import os, shutil, mimetypes
 
-# Create your views here.
+# 用户登录视图
 def loginPage(request):
-    # print(request.POST)
     if request.method == 'POST':
         usrnme = request.POST.get('username')
         pwd = request.POST.get('password')
-        # print('user: ', usrnme)
-        # print('pass: ', pwd)
-        # print('go?')
         user = authenticate(request, username=usrnme, password=pwd)
         if user is not None:
-            # print(user.get_username())
-            # print(user.get_full_name())
-            # print(user.is_superuser)
             request.session['user'] = {
                 'usrname': user.get_username(),
                 'fullname': user.get_full_name(),
                 'admin': user.is_superuser,
-                                        }
+            }
             login(request, user)
             return redirect('/content_table')
         else:
-            print('no')
-            messages.error(request,'username OR password incorrect')
-    return render(request,'userapp/index.html')
+            messages.error(request, 'username OR password incorrect')
+    return render(request, 'userapp/index.html')
 
+# 主页视图
 def homePage(request):
-    print('Home page')
     fs = FileSystemStorage()
     if request.user.is_anonymous:
-        print('lol not again')
         messages.error(request, 'Invalid to go without Login !!!')
         return redirect('/')
     form = filterForm()
@@ -60,30 +51,24 @@ def homePage(request):
     form.fields['receiving_bank'].choices = bank
     form.fields['tt_bank'].choices = bank
     all_details = Company.objects.all().prefetch_related()
-    return render(request,'userapp/content_table.html',{'form': form,'company_list':all_details,'base': 'userapp/base2.html'})
+    return render(request, 'userapp/content_table.html', {'form': form, 'company_list': all_details, 'base': 'userapp/base2.html'})
 
+# 创建公司视图，包含文件上传
 def create_company_form(request):
     if request.user.is_anonymous:
-        print('lol not again')
         messages.error(request, 'Invalid to go without Login !!!')
         return redirect('/')
     if request.method == 'POST':
         form = companyForm(request.POST, request.FILES)
         if form.is_valid():
             changes = form.save(commit=False)
-            # Company.objects.filter(id=16).delete()
-            # Company.objects.filter(id=7).delete()
-            # CompanyFile.objects.filter(id=2).delete()
-            # print(request.POST)
-            # print(len(request.FILES))
             companyname = request.POST.get('company_name')
             counter_onboard = request.POST.get('counterparty_onboard_status')
             serenity_onboard = request.POST.get('serenity_onboard_status')
             checkcompany_name = Company.objects.filter(company_name=companyname).values()
             if len(checkcompany_name) > 0:
                 messagess = 'Duplicated name in company name!'
-                return render(request, 'userapp/create_new_details.html',
-                              {'form': form, 'messages': messagess, 'base': 'userapp/base.html'})
+                return render(request, 'userapp/create_new_details.html', {'form': form, 'messages': messagess, 'base': 'userapp/base.html'})
             if counter_onboard == 'Complete':
                 changes.counterparty_onboard_date = datetime.today()
             if serenity_onboard == 'Complete':
@@ -91,18 +76,16 @@ def create_company_form(request):
             changes.save()
             form.save_m2m()
 
-            # find record of new uploaded company details
+            # 获取新上传的公司详情记录
             getimport = Company.objects.filter(company_name=companyname).values()
             if len(getimport) == 0:
                 messagess = 'Something wrong with database! No company name here'
-                return render(request, 'userapp/create_new_details.html',
-                              {'form': form, 'messages': messagess, 'base': 'userapp/base.html'})
+                return render(request, 'userapp/create_new_details.html', {'form': form, 'messages': messagess, 'base': 'userapp/base.html'})
             if len(getimport) != 1:
                 messagess = 'Duplicated name in company name! Please contact admin!'
-                return render(request, 'userapp/create_new_details.html',
-                              {'form': form, 'messages': messagess, 'base': 'userapp/base.html'})
+                return render(request, 'userapp/create_new_details.html', {'form': form, 'messages': messagess, 'base': 'userapp/base.html'})
 
-            # make record
+            # 保存公司创建记录
             saverecordobj = CompanycreatedRecord()
             saverecordobj.company_id = int(getimport[0]['id'])
             saverecordobj.done_by = request.user.get_full_name()
@@ -112,7 +95,7 @@ def create_company_form(request):
 
             newcmpname = companyname.replace(" ", "_")
             locdir = os.path.join(settings.MEDIA_ROOT, newcmpname)
-            # check if directory exist or not
+            # 检查目录是否存在
             if os.path.exists(locdir):
                 shutil.rmtree(locdir)
             os.mkdir(locdir)
@@ -129,7 +112,7 @@ def create_company_form(request):
                     saveobj.uploaded_date = datetime.today()
                     saveobj.save()
 
-                    # make record
+                    # 保存文件上传记录
                     saverecordobj = CompanycreatedRecord()
                     saverecordobj.company_id = int(getimport[0]['id'])
                     saverecordobj.done_by = request.user.get_full_name()
@@ -137,17 +120,16 @@ def create_company_form(request):
                     saverecordobj.remark = request.user.get_full_name() + ' uploaded file ' + a.name
                     saverecordobj.save()
 
-            # make empty form first, maybe soon will be redirect back to homepage
             form = companyForm()
-            # print('done')
             return redirect('Home')
         else:
             return render(request, 'userapp/create_new_details.html', {'form': form, 'base': 'userapp/base.html'})
-            # return redirect('Ad_User_details')
     else:
-        # form = companyForm(initial={'payment': ['Open Credit']})
         form = companyForm()
     return render(request, 'userapp/create_new_details.html', {'form': form, 'base': 'userapp/base.html'})
+
+# 其他视图函数...
+
 
 def companyPage(request,pk):
     if request.user.is_anonymous:
@@ -163,7 +145,18 @@ def companyPage(request,pk):
     # print(com_record.company.company_name)
     print('Company page')
     return render(request, 'userapp/company_details.html', {'comp_record': com_record,'com_name':com_name, 'base': 'userapp/base.html'})
-
+def upload_files(request):
+    if request.method == 'POST':
+        form = companyForm(request.POST, request.FILES)
+        files = request.FILES.getlist('file_upload')
+        if form.is_valid():
+            for file in files:
+                # Process each file here (e.g., save to model or filesystem)
+                print(file.name)  # Example action
+            return JsonResponse({'message': 'Files uploaded successfully!'})
+    else:
+        form = companyForm()
+    return render(request, 'userapp/upload.html', {'form': form})
 def userPage(request, pk):
     print('User page')
     if request.user.is_anonymous:
